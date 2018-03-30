@@ -7,6 +7,8 @@
 
 ## Load das bibliotecas necessárias
 library(ggplot2)
+library(gtable)
+library(grid)
 
 ## Leitura da planilha
 names <- c("Horario", "Temperatura", "Vento", "Umidade", "Sensacao")
@@ -35,14 +37,72 @@ consecutive <- function(vector , k = 1) {
   result <- logical(n)
   for (i in (1+k):n)
     if (all(vector [(i-k):(i-1)] == vector[i]))
-      result[i] <- TRUE
+      result[(i-k):(i-1)] <- TRUE
   for (i in 1:(n-k))
     if (all(vector [(i+1):(i+k)] == vector[i]))
-      result[i] <- TRUE
+      result[(i+1):(i+k)] <- TRUE
   return(result)
 }
 filtro <- consecutive(cepagri$Temperatura , 144)
 duplicates <- unique(as.Date(cepagri[filtro , 1]))
 
-## - Remover dias com dados consecutivos
+## - Remover dias com dados consecutivos por não serem confiáveis
 cepagri <- cepagri[!is.element(as.Date(cepagri$Horario), duplicates), ]
+
+
+
+## Gráfico de Umidade e Temperatura no Mes de Março (Mês das chuvas?), partindo da 
+## suposição que com o aumento da Umidade ao ponto de provocar chuva, a Temperatura 
+## diminuiria
+cepagriMarco2015 <- cepagri$Horario > "2015-03-01" & cepagri$Horario < "2015-04-01"
+cepagriMarco2015 <- cepagri[cepagriMarco2015, ]
+
+cepagriMarco2016 <- cepagri$Horario > "2016-03-01" & cepagri$Horario < "2016-04-01"
+cepagriMarco2016 <- cepagri[cepagriMarco2016, ]
+
+cepagriMarco2017 <- cepagri$Horario > "2017-03-01" & cepagri$Horario < "2017-04-01"
+cepagriMarco2017 <- cepagri[cepagriMarco2017, ]
+
+
+plot2yaxis(cepagriMarco2015)
+plot2yaxis(cepagriMarco2016)
+plot2yaxis(cepagriMarco2017)
+
+## Plotar duas curvas no mesmo gráfico, buscando relação entre temperatura e umidade
+## como forma de tentativa de identificação de chuvas
+## Método de utilização a partir de: http://rpubs.com/kohske/dual_axis_in_ggplot2
+
+
+plot2yaxis <- function(dataframe) {
+  grid.newpage()
+  
+  # two plots
+  graficoChuva <- ggplot(dataframe, aes(x=Horario))
+  graficoChuva <- graficoChuva + geom_line(aes(y=Umidade), colour="blue")+ theme_bw()
+  graficoChuva2 <- ggplot(dataframe, aes(x=Horario))
+  graficoChuva2 <- graficoChuva2 + geom_line(aes(y=Temperatura), colour="red")+ theme_bw() %+replace% 
+    theme(panel.background = element_rect(fill = NA)) + xlab("Indice")
+  
+  
+  # extract gtable
+  g1 <- ggplot_gtable(ggplot_build(graficoChuva))
+  g2 <- ggplot_gtable(ggplot_build(graficoChuva2))
+  
+  # overlap the panel of 2nd plot on that of 1st plot
+  pp <- c(subset(g1$layout, name == "panel", se = t:r))
+  g <- gtable_add_grob(g1, g2$grobs[[which(g2$layout$name == "panel")]], pp$t, 
+                       pp$l, pp$b, pp$l)
+  
+  # axis tweaks
+  ia <- which(g2$layout$name == "axis-l")
+  ga <- g2$grobs[[ia]]
+  ax <- ga$children[[2]]
+  ax$widths <- rev(ax$widths)
+  ax$grobs <- rev(ax$grobs)
+  ax$grobs[[1]]$x <- ax$grobs[[1]]$x - unit(1, "npc") + unit(0.15, "cm")
+  g <- gtable_add_cols(g, g2$widths[g2$layout[ia, ]$l], length(g$widths) - 1)
+  g <- gtable_add_grob(g, ax, pp$t, length(g$widths) - 1, pp$b)
+  
+  # draw it
+  grid.draw(g)
+}
