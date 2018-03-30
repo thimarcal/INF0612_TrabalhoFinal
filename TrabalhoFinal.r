@@ -49,30 +49,9 @@ duplicates <- unique(as.Date(cepagri[filtro , 1]))
 ## - Remover dias com dados consecutivos por não serem confiáveis
 cepagri <- cepagri[!is.element(as.Date(cepagri$Horario), duplicates), ]
 
-
-
-## Gráfico de Umidade e Temperatura no Mes de Março (Mês das chuvas?), partindo da 
-## suposição que com o aumento da Umidade ao ponto de provocar chuva, a Temperatura 
-## diminuiria
-cepagriMarco2015 <- cepagri$Horario > "2015-03-01" & cepagri$Horario < "2015-04-01"
-cepagriMarco2015 <- cepagri[cepagriMarco2015, ]
-
-cepagriMarco2016 <- cepagri$Horario > "2016-03-01" & cepagri$Horario < "2016-04-01"
-cepagriMarco2016 <- cepagri[cepagriMarco2016, ]
-
-cepagriMarco2017 <- cepagri$Horario > "2017-03-01" & cepagri$Horario < "2017-04-01"
-cepagriMarco2017 <- cepagri[cepagriMarco2017, ]
-
-
-plot2yaxis(cepagriMarco2015)
-plot2yaxis(cepagriMarco2016)
-plot2yaxis(cepagriMarco2017)
-
 ## Plotar duas curvas no mesmo gráfico, buscando relação entre temperatura e umidade
 ## como forma de tentativa de identificação de chuvas
 ## Método de utilização a partir de: http://rpubs.com/kohske/dual_axis_in_ggplot2
-
-
 plot2yaxis <- function(dataframe) {
   grid.newpage()
   
@@ -82,7 +61,6 @@ plot2yaxis <- function(dataframe) {
   graficoChuva2 <- ggplot(dataframe, aes(x=Horario))
   graficoChuva2 <- graficoChuva2 + geom_line(aes(y=Temperatura), colour="red")+ theme_bw() %+replace% 
     theme(panel.background = element_rect(fill = NA)) + xlab("Indice")
-  
   
   # extract gtable
   g1 <- ggplot_gtable(ggplot_build(graficoChuva))
@@ -106,3 +84,21 @@ plot2yaxis <- function(dataframe) {
   # draw it
   grid.draw(g)
 }
+
+## Gráfico de Umidade e Temperatura no Mes de Março (Mês das chuvas?), partindo da 
+## suposição que com o aumento da Umidade ao ponto de provocar chuva, a Temperatura 
+## diminuiria
+cepagriMarco2015 <- cepagri$Horario > "2015-03-01" & cepagri$Horario < "2015-04-01"
+cepagriMarco2015 <- cepagri[cepagriMarco2015, ]
+
+cepagriMarco2016 <- cepagri$Horario > "2016-03-01" & cepagri$Horario < "2016-04-01"
+cepagriMarco2016 <- cepagri[cepagriMarco2016, ]
+
+cepagriMarco2017 <- cepagri$Horario > "2017-03-01" & cepagri$Horario < "2017-04-01"
+cepagriMarco2017 <- cepagri[cepagriMarco2017, ]
+
+
+plot2yaxis(cepagriMarco2015)
+plot2yaxis(cepagriMarco2016)
+plot2yaxis(cepagriMarco2017)
+
