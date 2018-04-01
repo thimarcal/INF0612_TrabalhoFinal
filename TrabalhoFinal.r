@@ -102,3 +102,78 @@ plot2yaxis(cepagriMarco2015)
 plot2yaxis(cepagriMarco2016)
 plot2yaxis(cepagriMarco2017)
 
+
+## Qual o maior número de dias consecutivos com temperaturas máximas acima de 30oC?
+maximas <- function() {
+  dias <- unique(as.Date(cepagri$Horario))
+  maxTemps <- vector(length = length(dias))
+  for (i in 1:length(dias)) {
+    maxTemps[i] <- max(cepagri$Temperatura[as.Date(cepagri$Horario) == dias[i]])
+  }
+  df <- data.frame(dias, maxTemps)
+  
+  df
+}
+
+max <- maximas()
+
+consecutiveHigh <- function(df) {
+  maxCount <- 0
+  currentCount <- 0
+  
+  for (i in 1:length(df[,1])) {
+    if (df$maxTemps[i] >= 30) {
+      if (i > 1 && df$dias[i] == (df$dias[i-1] + 1)) {
+        currentCount <- currentCount + 1
+      } else {
+        currentCount <- 1
+      }
+      if (currentCount > maxCount) {
+        maxCount <- currentCount
+      }
+    } else {
+      currentCount <- 0
+    }
+  }
+  maxCount
+}
+
+maxCount <- consecutiveHigh(max)
+
+## Qual o maior número de dias consecutivos com temperaturas mínimas abaixo de 10oC?
+minimas <- function() {
+  dias <- unique(as.Date(cepagri$Horario))
+  minTemps <- vector(length = length(dias))
+  for (i in 1:length(dias)) {
+    minTemps[i] <- min(cepagri$Temperatura[as.Date(cepagri$Horario) == dias[i]])
+  }
+  df <- data.frame(dias, minTemps)
+  
+  df
+}
+
+min <- minimas()
+
+consecutiveLow <- function(df) {
+  minCount <- 0
+  currentCount <- 0
+  
+  for (i in 1:length(df[,1])) {
+    if (df$minTemps[i] <=10) {
+      if (i > 1 && df$dias[i] == (df$dias[i-1] + 1)) {
+        currentCount <- currentCount + 1
+      } else {
+        currentCount <- 1
+      }
+      if (currentCount > minCount) {
+        minCount <- currentCount
+      }
+    } else {
+      currentCount <- 0
+    }
+  }
+  minCount
+}
+
+minCount <- consecutiveLow(min)
+
