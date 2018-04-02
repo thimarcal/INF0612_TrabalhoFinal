@@ -239,7 +239,20 @@ amplitudeMensal <- ggplot(ampTermMensal, aes(x = Mes, y = Amplitude, group = Ano
   geom_line() + geom_point() + facet_wrap(~ Ano, nrow = 3, ncol = 1) + theme(legend.position = "none")
 amplitudeMensal
 
-## Ventos
-ventosMensais <- ggplot(cepagri, aes(x = Mes, y = Vento, group = Ano, color = Ano)) + 
-  geom_line() + geom_point() + facet_wrap(~ Ano, nrow = 3, ncol = 1) + theme(legend.position = "none")
-ventosMensais
+## Qual a média das umidades mínimas diárias, mês a mês?
+umidadeMinimaDiaria <- aggregate(cepagri[,"Umidade"], list(cepagri$Dia, cepagri$Mes, cepagri$Ano), min)
+colnames(umidadeMinimaDiaria) <- c("Dia", "Mes", "Ano", "min")
+mediaUmidadeMinima <- aggregate(umidadeMinimaDiaria[,"min"], list(umidadeMinimaDiaria$Mes, umidadeMinimaDiaria$Ano), mean)
+colnames(mediaUmidadeMinima) <- c("Mes", "Ano", "Media")
+mediaUmidadeMinima$Mes <- factor(month.abb[mediaUmidadeMinima$Mes], levels = month.abb)
+gMediaUmidadeMin <- ggplot(mediaUmidadeMinima, aes(x = Mes, y = Media, group = Ano, fill = Media)) + geom_bar(stat = "identity") + facet_wrap(~ Ano, nrow = 3, ncol = 1)
+gMediaUmidadeMin
+
+## Qual é a média dos ventos máximos diários, mês a mês?
+ventosMaxDiario <- aggregate(cepagri[,"Vento"], list(cepagri$Dia, cepagri$Mes, cepagri$Ano), max)
+colnames(ventosMaxDiario) <- c("Dia", "Mes", "Ano", "max")
+mediaVentoMax <- aggregate(ventosMaxDiario[,"max"], list(ventosMaxDiario$Mes, ventosMaxDiario$Ano), mean)
+colnames(mediaVentoMax) <- c("Mes", "Ano", "Media")
+mediaVentoMax$Mes <- factor(month.abb[mediaVentoMax$Mes], levels = month.abb)
+gMediaUmidadeMin <- ggplot(mediaVentoMax, aes(x = Mes, y = Media, group = Ano, fill = Media)) + geom_bar(stat = "identity") + facet_wrap(~ Ano, nrow = 3, ncol = 1)
+gMediaUmidadeMin
