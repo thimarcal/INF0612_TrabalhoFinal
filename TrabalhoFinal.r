@@ -199,14 +199,20 @@ diasUmidosNoMes <- function(acima = 0, abaixo = 100) {
   return(tabela1)
 }
 umidade30 <- diasUmidosNoMes(abaixo = 30)
+
+diasUmidade30 <- sum(umidade30[-1,])
+
 ## Informações sobre os níveis críticos de umidade relativa do ar:
 # https://orion.cpa.unicamp.br/artigos-especiais/umidade-do-ar-saude-no-inverno.html
 # Estado de atencao - entre 20% e 30%
 estadoAtencao <- diasUmidosNoMes(acima = 20, abaixo = 30)
+diasEstadoAtencao <- sum(estadoAtencao[-1,])
 # Estado de Alerta - entre 12% e 20%
 estadoAlerta <- diasUmidosNoMes(acima = 12, abaixo = 20)
+diasEstadoAlerta <- sum(estadoAlerta[-1,])
 # Estado de Emergencia - abaixo de 12%
 estadoEmergencia <- diasUmidosNoMes(abaixo = 12)
+diasEstadoEmergencia <- sum(estadoEmergencia[-1,])
 
 ## Quão frequentes são os ventos fortes em Campinas, de acordo com a Escala de Beaufort?
 # Escala de Beaufort: https://pt.wikipedia.org/wiki/Escala_de_Beaufort
