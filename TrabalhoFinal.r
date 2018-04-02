@@ -184,15 +184,16 @@ minCount <- consecutiveLow(min)
 ## Qual o número de dias por mês com umidade mínima abaixo de 30%?
 ## Tabela 1
 diasUmidosNoMes <- function(acima = 0, abaixo = 100) {
-  umidade <- cepagri[cepagri$Umidade > acima & cepagri$Umidade < abaixo,]
-  umidade <- unique(as.Date(umidade$Horario))
+  umidadeMinimaDiaria <- aggregate(cepagri[,"Umidade"], list(cepagri$Dia, cepagri$Mes, cepagri$Ano), min)
+  colnames(umidadeMinimaDiaria) <- c("Dia", "Mes", "Ano", "minUmidade")
+  umidade <- umidadeMinimaDiaria[umidadeMinimaDiaria$minUmidade > acima & umidadeMinimaDiaria$minUmidade < abaixo,]
   meses <- c(1:12)
   anos <- c(2015:2017)
   tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
   for (i in 1:length(anos)) {
     for (j in meses) {
-      mes <- as.numeric(substr(umidade, 1, 4)) == anos[i] & as.numeric(substr(umidade, 6, 7)) == j
-      tabela1[j,i] <- sum(mes)
+      diasDoMes <- umidade[umidade$Ano == anos[i] & umidade$Mes == j,]$Dia
+      tabela1[j,i] <- length(diasDoMes)
     }
   }
   return(tabela1)
