@@ -184,14 +184,14 @@ minCount <- consecutiveLow(min)
 ## Qual o número de dias por mês com umidade mínima abaixo de 30%?
 ## Tabela 1
 diasUmidosNoMes <- function(acima = 0, abaixo = 100) {
-  baixaUmidade <- cepagri[cepagri$Umidade > acima & cepagri$Umidade < abaixo,]
-  baixaUmidade <- unique(as.Date(baixaUmidade$Horario))
+  umidade <- cepagri[cepagri$Umidade > acima & cepagri$Umidade < abaixo,]
+  umidade <- unique(as.Date(umidade$Horario))
   meses <- c(1:12)
   anos <- c(2015:2017)
   tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
   for (i in 1:length(anos)) {
     for (j in meses) {
-      mes <- as.numeric(substr(baixaUmidade, 1, 4)) == anos[i] & as.numeric(substr(baixaUmidade, 6, 7)) == j
+      mes <- as.numeric(substr(umidade, 1, 4)) == anos[i] & as.numeric(substr(umidade, 6, 7)) == j
       tabela1[j,i] <- sum(mes)
     }
   }
@@ -199,13 +199,32 @@ diasUmidosNoMes <- function(acima = 0, abaixo = 100) {
 }
 umidade30 <- diasUmidosNoMes(abaixo = 30)
 ## Informações sobre os níveis críticos de umidade relativa do ar:
-## https://orion.cpa.unicamp.br/artigos-especiais/umidade-do-ar-saude-no-inverno.html
+# https://orion.cpa.unicamp.br/artigos-especiais/umidade-do-ar-saude-no-inverno.html
 # Estado de atencao - entre 20% e 30%
 estadoAtencao <- diasUmidosNoMes(acima = 20, abaixo = 30)
 # Estado de Alerta - entre 12% e 20%
 estadoAlerta <- diasUmidosNoMes(acima = 12, abaixo = 20)
 # Estado de Emergencia - abaixo de 12%
 estadoEmergencia <- diasUmidosNoMes(abaixo = 12)
+
+## Quão frequentes são os ventos fortes em Campinas, de acordo com a Escala de Beaufort?
+# Escala de Beaufort: https://pt.wikipedia.org/wiki/Escala_de_Beaufort
+diasDeVentoNoMes <- function(acima = 0, abaixo = 200) {
+  ventos <- cepagri[cepagri$Vento > acima & cepagri$Vento < abaixo,]
+  ventos <- unique(as.Date(ventos$Horario))
+  meses <- c(1:12)
+  anos <- c(2015:2017)
+  tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
+  for (i in 1:length(anos)) {
+    for (j in meses) {
+      mes <- as.numeric(substr(ventos, 1, 4)) == anos[i] & as.numeric(substr(ventos, 6, 7)) == j
+      tabela1[j,i] <- sum(mes)
+    }
+  }
+  return(tabela1)
+}
+# Valores dos ventos estão em km/h
+ventosFortes <- diasDeVentoNoMes(acima = 50, abaixo = 61)
 
 
 ## Qual é maior amplitude térmica mensal?
@@ -219,3 +238,8 @@ ampTermMensal <- data.frame(Mes = factor(month.abb[maxTempMensal$Mes], levels = 
 amplitudeMensal <- ggplot(ampTermMensal, aes(x = Mes, y = Amplitude, group = Ano, color = Ano)) + 
   geom_line() + geom_point() + facet_wrap(~ Ano, nrow = 3, ncol = 1) + theme(legend.position = "none")
 amplitudeMensal
+
+## Ventos
+ventosMensais <- ggplot(cepagri, aes(x = Mes, y = Vento, group = Ano, color = Ano)) + 
+  geom_line() + geom_point() + facet_wrap(~ Ano, nrow = 3, ncol = 1) + theme(legend.position = "none")
+ventosMensais
