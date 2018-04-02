@@ -184,7 +184,7 @@ baixaUmidade <- cepagri[cepagri$Umidade < 30,]
 baixaUmidade <- unique(as.Date(baixaUmidade$Horario))
 meses <- c(1:12)
 anos <- c(2015:2017)
-tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(meses, anos))
+tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
 for (i in 1:length(anos)) {
   for (j in meses) {
     mes <- as.numeric(substr(baixaUmidade, 1, 4)) == anos[i] & as.numeric(substr(baixaUmidade, 6, 7)) == j
@@ -192,3 +192,20 @@ for (i in 1:length(anos)) {
   }
 }
 tabela1
+
+## Qual é maior amplitude térmica mensal?
+cepagri$Ano <- cepagri$Horario$year + 1900
+cepagri$Mes <- cepagri$Horario$mon + 1
+
+maxTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$Ano), max)
+colnames(maxTempMensal) <- c("Mes", "Ano", "maxTemp")
+maxTempMensal$Data <- paste(month.abb[maxTempMensal[,"Mes"]], maxTempMensal[,"Ano"], sep = "-")
+
+minTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$Ano), min)
+colnames(minTempMensal) <- c("Mes", "Ano", "minTemp")
+minTempMensal$Data <- paste(month.abb[minTempMensal[,"Mes"]], minTempMensal[,"Ano"], sep = "-")
+
+ampTermMensal <- data.frame(Data = maxTempMensal$Data, Amplitude = (maxTempMensal$maxTemp - minTempMensal$minTemp))
+ampTermMensal$Data <- factor(ampTermMensal$Data, levels = ampTermMensal$Data)
+amplitudeMensal <- ggplot(ampTermMensal, aes(x = Data, y = Amplitude, group = 1)) + geom_line()
+amplitudeMensal
