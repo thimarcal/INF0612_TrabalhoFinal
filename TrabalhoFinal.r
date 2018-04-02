@@ -254,5 +254,5 @@ colnames(ventosMaxDiario) <- c("Dia", "Mes", "Ano", "max")
 mediaVentoMax <- aggregate(ventosMaxDiario[,"max"], list(ventosMaxDiario$Mes, ventosMaxDiario$Ano), mean)
 colnames(mediaVentoMax) <- c("Mes", "Ano", "Media")
 mediaVentoMax$Mes <- factor(month.abb[mediaVentoMax$Mes], levels = month.abb)
-gMediaUmidadeMin <- ggplot(mediaVentoMax, aes(x = Mes, y = Media, group = Ano, fill = Media)) + geom_bar(stat = "identity") + facet_wrap(~ Ano, nrow = 3, ncol = 1)
-gMediaUmidadeMin
+gMediaVentoMax <- ggplot(mediaVentoMax, aes(x = Mes, y = Media, group = Ano, fill = Media)) + geom_bar(stat = "identity") + facet_wrap(~ Ano, nrow = 3, ncol = 1)
+gMediaVentoMax
