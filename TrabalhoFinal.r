@@ -16,6 +16,9 @@ cepagri <- read.csv("https://www.ic.unicamp.br/~zanoni/cepagri/cepagri.csv", hea
 
 ## Acertar o formato das datas
 cepagri$Horario <- strptime(cepagri[,1], "%d/%m/%Y-%H:%M")
+cepagri$Dia <- cepagri$Horario$mday
+cepagri$Mes <- cepagri$Horario$mon + 1
+cepagri$Ano <- cepagri$Horario$year + 1900
 
 ## Filtrar as datas desejadas de acordo com os requisitos
 ## intervalo de 01/01/2015 a 31/12/2017
@@ -194,9 +197,6 @@ for (i in 1:length(anos)) {
 tabela1
 
 ## Qual é maior amplitude térmica mensal?
-cepagri$Ano <- cepagri$Horario$year + 1900
-cepagri$Mes <- cepagri$Horario$mon + 1
-
 maxTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$Ano), max)
 colnames(maxTempMensal) <- c("Mes", "Ano", "maxTemp")
 maxTempMensal$Data <- paste(month.abb[maxTempMensal[,"Mes"]], maxTempMensal[,"Ano"], sep = "-")
