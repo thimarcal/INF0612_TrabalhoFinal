@@ -183,27 +183,37 @@ minCount <- consecutiveLow(min)
 
 ## Qual o número de dias por mês com umidade mínima abaixo de 30%?
 ## Tabela 1
-baixaUmidade <- cepagri[cepagri$Umidade < 30,]
-baixaUmidade <- unique(as.Date(baixaUmidade$Horario))
-meses <- c(1:12)
-anos <- c(2015:2017)
-tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
-for (i in 1:length(anos)) {
-  for (j in meses) {
-    mes <- as.numeric(substr(baixaUmidade, 1, 4)) == anos[i] & as.numeric(substr(baixaUmidade, 6, 7)) == j
-    tabela1[j,i] <- sum(mes)
+diasUmidosNoMes <- function(acima = 0, abaixo = 100) {
+  baixaUmidade <- cepagri[cepagri$Umidade > acima & cepagri$Umidade < abaixo,]
+  baixaUmidade <- unique(as.Date(baixaUmidade$Horario))
+  meses <- c(1:12)
+  anos <- c(2015:2017)
+  tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
+  for (i in 1:length(anos)) {
+    for (j in meses) {
+      mes <- as.numeric(substr(baixaUmidade, 1, 4)) == anos[i] & as.numeric(substr(baixaUmidade, 6, 7)) == j
+      tabela1[j,i] <- sum(mes)
+    }
   }
+  return(tabela1)
 }
-tabela1
+umidade30 <- diasUmidosNoMes(abaixo = 30)
+## Informações sobre os níveis críticos de umidade relativa do ar:
+## https://orion.cpa.unicamp.br/artigos-especiais/umidade-do-ar-saude-no-inverno.html
+# Estado de atencao - entre 20% e 30%
+estadoAtencao <- diasUmidosNoMes(acima = 20, abaixo = 30)
+# Estado de Alerta - entre 12% e 20%
+estadoAlerta <- diasUmidosNoMes(acima = 12, abaixo = 20)
+# Estado de Emergencia - abaixo de 12%
+estadoEmergencia <- diasUmidosNoMes(abaixo = 12)
+
 
 ## Qual é maior amplitude térmica mensal?
 maxTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$Ano), max)
 colnames(maxTempMensal) <- c("Mes", "Ano", "maxTemp")
-maxTempMensal$Data <- paste(month.abb[maxTempMensal[,"Mes"]], maxTempMensal[,"Ano"], sep = "-")
 
 minTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$Ano), min)
 colnames(minTempMensal) <- c("Mes", "Ano", "minTemp")
-minTempMensal$Data <- paste(month.abb[minTempMensal[,"Mes"]], minTempMensal[,"Ano"], sep = "-")
 
 ampTermMensal <- data.frame(Mes = factor(month.abb[maxTempMensal$Mes], levels = month.abb), Ano = maxTempMensal$Ano, Amplitude = (maxTempMensal$maxTemp - minTempMensal$minTemp))
 amplitudeMensal <- ggplot(ampTermMensal, aes(x = Mes, y = Amplitude, group = Ano, color = Ano)) + 
