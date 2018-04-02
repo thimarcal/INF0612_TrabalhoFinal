@@ -207,5 +207,5 @@ minTempMensal$Data <- paste(month.abb[minTempMensal[,"Mes"]], minTempMensal[,"An
 
 ampTermMensal <- data.frame(Mes = factor(month.abb[maxTempMensal$Mes], levels = month.abb), Ano = maxTempMensal$Ano, Amplitude = (maxTempMensal$maxTemp - minTempMensal$minTemp))
 amplitudeMensal <- ggplot(ampTermMensal, aes(x = Mes, y = Amplitude, group = Ano, color = Ano)) + 
-  geom_line() + geom_point() + facet_wrap(~ Ano) + theme(legend.position = "none")
+  geom_line() + geom_point() + facet_wrap(~ Ano, nrow = 3, ncol = 1) + theme(legend.position = "none")
 amplitudeMensal
