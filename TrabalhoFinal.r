@@ -177,3 +177,18 @@ consecutiveLow <- function(df) {
 
 minCount <- consecutiveLow(min)
 
+
+## Qual o número de dias por mês com umidade mínima abaixo de 30%?
+## Tabela 1
+baixaUmidade <- cepagri[cepagri$Umidade < 30,]
+baixaUmidade <- unique(as.Date(baixaUmidade$Horario))
+meses <- c(1:12)
+anos <- c(2015:2017)
+tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(meses, anos))
+for (i in 1:length(anos)) {
+  for (j in meses) {
+    mes <- as.numeric(substr(baixaUmidade, 1, 4)) == anos[i] & as.numeric(substr(baixaUmidade, 6, 7)) == j
+    tabela1[j,i] <- sum(mes)
+  }
+}
+tabela1
