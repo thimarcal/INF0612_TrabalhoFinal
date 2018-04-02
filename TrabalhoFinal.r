@@ -205,7 +205,7 @@ minTempMensal <- aggregate(cepagri[,"Temperatura"], list(cepagri$Mes, cepagri$An
 colnames(minTempMensal) <- c("Mes", "Ano", "minTemp")
 minTempMensal$Data <- paste(month.abb[minTempMensal[,"Mes"]], minTempMensal[,"Ano"], sep = "-")
 
-ampTermMensal <- data.frame(Data = maxTempMensal$Data, Amplitude = (maxTempMensal$maxTemp - minTempMensal$minTemp))
-ampTermMensal$Data <- factor(ampTermMensal$Data, levels = ampTermMensal$Data)
-amplitudeMensal <- ggplot(ampTermMensal, aes(x = Data, y = Amplitude, group = 1)) + geom_line()
+ampTermMensal <- data.frame(Mes = factor(month.abb[maxTempMensal$Mes], levels = month.abb), Ano = maxTempMensal$Ano, Amplitude = (maxTempMensal$maxTemp - minTempMensal$minTemp))
+amplitudeMensal <- ggplot(ampTermMensal, aes(x = Mes, y = Amplitude, group = Ano, color = Ano)) + 
+  geom_line() + geom_point() + facet_wrap(~ Ano) + theme(legend.position = "none")
 amplitudeMensal
