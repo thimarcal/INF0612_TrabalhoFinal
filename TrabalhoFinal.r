@@ -217,15 +217,16 @@ diasEstadoEmergencia <- sum(estadoEmergencia[-1,])
 ## Quão frequentes são os ventos fortes em Campinas, de acordo com a Escala de Beaufort?
 # Escala de Beaufort: https://pt.wikipedia.org/wiki/Escala_de_Beaufort
 diasDeVentoNoMes <- function(acima = 0, abaixo = 200) {
-  ventos <- cepagri[cepagri$Vento > acima & cepagri$Vento < abaixo,]
-  ventos <- unique(as.Date(ventos$Horario))
+  ventosMaxDiario <- aggregate(cepagri[,"Vento"], list(cepagri$Dia, cepagri$Mes, cepagri$Ano), max)
+  colnames(ventosMaxDiario) <- c("Dia", "Mes", "Ano", "maxVento")
+  ventos <- ventosMaxDiario[ventosMaxDiario$maxVento > acima & ventosMaxDiario$maxVento < abaixo,]
   meses <- c(1:12)
   anos <- c(2015:2017)
   tabela1 <- matrix(nrow=length(meses), ncol=length(anos), dimnames = list(month.name, anos))
   for (i in 1:length(anos)) {
     for (j in meses) {
-      mes <- as.numeric(substr(ventos, 1, 4)) == anos[i] & as.numeric(substr(ventos, 6, 7)) == j
-      tabela1[j,i] <- sum(mes)
+      diasDoMes <- ventos[ventos$Ano == anos[i] & ventos$Mes == j,]$Dia
+      tabela1[j,i] <- length(diasDoMes)
     }
   }
   return(tabela1)
